@@ -1,0 +1,290 @@
+<!DOCTYPE HTML>
+<!--
+ The MIT License (MIT)
+
+ This file is part of the JoyStick Project (https://github.com/bobboteck/JoyStick).
+ Copyright (c) 2015 Roberto D'Amico (Bobboteck).
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+-->
+<html>
+	<head>
+		<title>Joy</title>
+		<meta charset="utf-8">
+		<meta name="description" content="Example page of use pure Javascript JoyStick">
+		<meta name="author" content="Roberto D'Amico">
+		<link rel="shortcut icon" type="image/png" href="http://bobboteck.github.io/img/roberto-damico-bobboteck.png">
+		<style>
+*
+{
+	box-sizing: border-box;
+}
+body
+{
+	margin: 0px;
+	padding: 0px;
+	font-family: monospace;
+}
+.row
+{
+	display: inline-flex;
+	clear: both;
+}
+.columnLateral
+{
+  float: left;
+  width: 15%;
+  min-width: 300px;
+}
+.columnCetral
+{
+  float: left;
+  width: 70%;
+  min-width: 300px;
+}
+#joy2Div
+{
+	width:200px;
+	height:200px;
+	margin:50px
+}
+#joystick
+{
+	border: 1px solid #FF0000;
+}
+#joystick2
+{
+	border: 1px solid #0000FF;
+}
+		</style>
+		<script src="joy.js"></script>
+	</head>
+	<body>
+		<!-- Example of FIXED or ABSOLUTE position 
+		<div id="joy3Div" style="width:200px;height:200px;margin:50px;position:fixed;bottom:30px;left:500px;"></div>
+		<div style="position:fixed;bottom:125px;left:750px;">
+			Posizione X:<input id="joy3PosizioneX" type="text" /><br />
+			Posizione Y:<input id="joy3PosizioneY" type="text" /><br />
+			Direzione:<input id="joy3Direzione" type="text" /><br />
+			X :<input id="joy3X" type="text" /></br>
+			Y :<input id="joy3Y" type="text" />
+		</div> -->
+		<!-- Example of two JoyStick integrated in the page structure -->
+		<div class="row">
+			<div class="columnLateral">
+				<div id="joy1Div" style="width:200px;height:200px;margin:50px"></div>
+				Posizione X:<input id="joy1PosizioneX" type="text" /><br />
+				Posizione Y:<input id="joy1PosizioneY" type="text" /><br />
+				Direzione:<input id="joy1Direzione" type="text" /><br />
+				X :<input id="joy1X" type="text" /></br>
+				Y :<input id="joy1Y" type="text" />
+			</div>
+			<div class="columnCetral">
+				<h2>JoyStick</h2>
+				<p>A simple JoyStick</p>
+			</div>
+			<div class="columnLateral">
+				<div id="joy2Div"></div>
+				Posizione X:<input id="joy2PosizioneX" type="text" /></br>
+				Posizione Y:<input id="joy2PosizioneY" type="text" /></br>
+				Direzione:<input id="joy2Direzione" type="text" /></br>
+				X :<input id="joy2X" type="text" /></br>
+				Y :<input id="joy2Y" type="text" /></br>
+                PWM L :<input id="pwmL" type="text" /><br />
+                PWM R :<input id="pwmR" type="text" />
+			</div>			
+		</div>
+		<script type="text/javascript">
+// Create JoyStick object into the DIV 'joy1Div'
+//var Joy1 = new JoyStick('joy1Div');
+
+var joy1IinputPosX = document.getElementById("joy1PosizioneX");
+var joy1InputPosY = document.getElementById("joy1PosizioneY");
+var joy1Direzione = document.getElementById("joy1Direzione");
+var joy1X = document.getElementById("joy1X");
+var joy1Y = document.getElementById("joy1Y");
+/*
+setInterval(function(){ joy1IinputPosX.value=Joy1.GetPosX(); }, 50);
+setInterval(function(){ joy1InputPosY.value=Joy1.GetPosY(); }, 50);
+setInterval(function(){ joy1Direzione.value=Joy1.GetDir(); }, 50);
+setInterval(function(){ joy1X.value=Joy1.GetX(); }, 50);
+setInterval(function(){ joy1Y.value=Joy1.GetY(); }, 50);
+*/
+// Create JoyStick object into the DIV 'joy1Div'
+var Joy1 = new JoyStick('joy1Div', {}, function(stickData) {
+    joy1IinputPosX.value = stickData.xPosition;
+    joy1InputPosY.value = stickData.yPosition;
+    joy1Direzione.value = stickData.cardinalDirection;
+    joy1X.value = stickData.x;
+    joy1Y.value = stickData.y;
+    if((stickData.cardinalDirection === "N" || stickData.cardinalDirection === "S" )/*&& (stickData.y >= 50 || stickData.y <= -50)*/)
+    {
+        send("#C," + stickData.y + "," + 0);
+        console.log("JOY1 Y callback executed");
+    }
+    else if((stickData.cardinalDirection === "W" || stickData.cardinalDirection === "E" )&& (stickData.x >= 50 || stickData.x <= -50))
+    {
+         send("#C," + 0 + "," + stickData.x);
+        console.log("JOY1 X callback executed");
+    }
+    else if(stickData.cardinalDirection === "C") 
+    {
+        send("#C," + 0 + "," + 0);
+        console.log("JOY1 CENTER callback executed");
+    }
+});
+
+// Create JoyStick object into the DIV 'joy2Div'
+var joy2Param = { "title": "joystick2", "autoReturnToCenter": true };
+var Joy2 = new JoyStick('joy2Div', joy2Param, function(stickData) {
+    send(getfuerza(stickData.x, stickData.y));
+    console.log("JOY2 callback executed");
+});
+
+var joy2IinputPosX = document.getElementById("joy2PosizioneX");
+var joy2InputPosY = document.getElementById("joy2PosizioneY");
+var joy2Direzione = document.getElementById("joy2Direzione");
+var joy2X = document.getElementById("joy2X");
+var joy2Y = document.getElementById("joy2Y");
+var pwmL = document.getElementById("pwmL");
+var pwmR = document.getElementById("pwmR");
+
+setInterval(function(){ joy2IinputPosX.value=Joy2.GetPosX(); }, 50);
+setInterval(function(){ joy2InputPosY.value=Joy2.GetPosY(); }, 50);
+setInterval(function(){ joy2Direzione.value=Joy2.GetDir(); }, 50);
+setInterval(function(){ joy2X.value=Joy2.GetX(); }, 50);
+setInterval(function(){ joy2Y.value=Joy2.GetY(); }, 50);
+
+//var joy3Param = { "title": "joystick3" };
+//var Joy3 = new JoyStick('joy3Div', joy3Param);
+
+//var joy3IinputPosX = document.getElementById("joy3PosizioneX");
+//var joy3InputPosY = document.getElementById("joy3PosizioneY");
+//var joy3Direzione = document.getElementById("joy3Direzione");
+//var joy3X = document.getElementById("joy3X");
+//var joy3Y = document.getElementById("joy3Y");
+//
+//setInterval(function(){ joy3IinputPosX.value=Joy3.GetPosX(); }, 50);
+//setInterval(function(){ joy3InputPosY.value=Joy3.GetPosY(); }, 50);
+//setInterval(function(){ joy3Direzione.value=Joy3.GetDir(); }, 50);
+//setInterval(function(){ joy3X.value=Joy3.GetX(); }, 50);
+//setInterval(function(){ joy3Y.value=Joy3.GetY(); }, 50);
+
+    //Steering control program, based on :
+    // Differential Steering Joystick Algorithm
+    //   by Calvin Hass
+    //   https://www.impulseadventure.com/elec/
+
+    function getfuerza(nJoyX, nJoyY) {
+        var nMotMixL;
+        var nMotMixR;
+        var fPivYLimit = 32.0; //The threshold at which the pivot action starts
+        //                This threshold is measured in units on the Y-axis
+        //                away from the X-axis (Y=0). A greater value will assign
+        //                more of the joystick's range to pivot actions
+        //                Allowable range: 0 to 127
+
+        // TEMP VARIABLES
+        var nMotPremixL;    // Motor (left)  premixed output        (-128..+127)
+        var nMotPremixR;    // Motor (right) premixed output        (-128..+127)
+        var nPivSpeed;      // Pivot Speed                          (-128..+127)
+        var fPivScale;       // Balance scale b/w drive and pivot    (   0..1   )
+
+        // Calculate Drive Turn output due to Joystick X input
+        if (nJoyY >= 0) {
+            // Forward
+            nMotPremixL = (nJoyX >= 0 ? 100.0 : 100.0 + parseFloat(nJoyX));
+            nMotPremixR = (nJoyX >= 0 ? 100.0 - nJoyX : 100.0);
+        } else {
+            // Reverse
+            nMotPremixL = (nJoyX >= 0 ? 100.0 - nJoyX : 100.0);
+            nMotPremixR = (nJoyX >= 0 ? 100.0 : 100.0 + parseFloat(nJoyX));
+        }
+
+        // Scale Drive output due to Joystick Y input (throttle)
+        nMotPremixL = nMotPremixL * nJoyY / 100.0;
+        nMotPremixR = nMotPremixR * nJoyY / 100.0;
+
+        // Now calculate pivot amount
+        // - Strength of pivot (nPivSpeed) based on Joystick X input
+        // - Blending of pivot vs drive (fPivScale) based on Joystick Y input
+        nPivSpeed = nJoyX;
+        fPivScale = (Math.abs(nJoyY) > fPivYLimit) ? 0.0 : (1.0 - Math.abs(nJoyY) / fPivYLimit);
+
+        console.log("nPivSpeed >>> ",nPivSpeed," fPivScale >>> ",fPivScale);
+
+        // Calculate final mix of Drive and Pivot
+        nMotMixL = (1.0 - fPivScale) * nMotPremixL + fPivScale * (nPivSpeed);
+        nMotMixR = (1.0 - fPivScale) * nMotPremixR + fPivScale * (-nPivSpeed);
+
+
+      const pwmMultiplier = 2.55;
+        pwmL.value = Math.round(nMotMixL * pwmMultiplier);
+        pwmR.value = Math.round(nMotMixR * pwmMultiplier);
+        
+        console.log("PWM_L >>> ",Math.round(nMotMixL * pwmMultiplier),"PWM_L >>> ",Math.round(nMotMixR * pwmMultiplier));
+
+        return "#M," + Math.round(nMotMixL * pwmMultiplier) + "," + Math.round(nMotMixR * pwmMultiplier);   // The function returns the product of p1 and p2
+    }
+    
+    
+        const view = document.getElementById('stream');
+        //const WS_URL = "ws://" + window.location.host + ":82";
+        //const WS_URL = 'ws://192.168.43.59:82';
+        //const WS_URL = 'ws://192.168.1.76:82';
+        const WS_URL = 'ws://192.168.137.135:82';
+        console.log(WS_URL);
+        const ws = new WebSocket(WS_URL);
+
+        ws.onmessage = message => {
+            if (message.data instanceof Blob) {
+                var urlObject = URL.createObjectURL(message.data);
+                view.src = urlObject;
+            }
+        };
+        
+        var lastText, lastSend, sendTimeout;
+        // limit sending to one message every 30 ms
+        // https://github.com/neonious/lowjs_esp32_examples/blob/master/neonious_one/cellphone_controlled_rc_car/www/index.html
+        function send(txt) {
+            var now = new Date().getTime();
+            if (lastSend === undefined || now - lastSend >= 30) {
+                try {
+                    ws.send(txt);
+                    lastSend = new Date().getTime();
+                    return;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            lastText = txt;
+            if (!sendTimeout) {
+                var ms = lastSend !== undefined ? 30 - (now - lastSend) : 30;
+                if (ms < 0)
+                    ms = 0;
+                sendTimeout = setTimeout(() => {
+                    sendTimeout = null;
+                    send(lastText);
+                }, ms);
+            }
+        }
+        
+		</script>
+	</body>
+</html>

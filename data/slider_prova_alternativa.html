@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Vue roundSlider local demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+   <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script> -->
+    <script src="jquery-3.6.3.min.js"></script>
+    <script src="vue-roundslider.min.js"></script>
+    <script src="joy.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: center;
+      }
+      a {
+        color: #42b983;
+      }
+      .rs-control {
+        margin: 0 auto;
+      }
+      
+      #row-section{
+       text-align: center; /*contenuto centrato*/
+       margin-top: 50px; /*spazio superiore*/
+       border: 1px solid #00FF00;
+       //display: flex;
+       //justify-content: space-between;
+      }
+    
+      .column{
+         /*larghezza dei div skill, in pagina ne abbiamo 3 quindi 100 / 3
+         lasciando un po' di spazio per i margini
+         */
+         width: 28%;
+         min-width: 200px;
+         /*display: inline-block; */ /*questi div saranno posti uno a fianco all'altro*/
+         display: inline-flex;
+         flex-direction:  column;
+         align-items: center;
+
+        margin: 2%; /*un po di spazio tra i div*/
+        color: #2d3e50;
+        border: 1px solid #00FFFF;
+      }
+
+    </style>
+  </head>
+  <body>
+  <!--  <div id="app"> -->
+  
+  <br>
+    <br>
+    <div class="bodytext">Fan Speed Control (RPM: <span id="fanrpm"></span>)</div>
+    <br>
+    <input type="range" class="fanrpmslider" min="0" max="255" value = "0" width = "0%" oninput="UpdateSlider(this.value)"/>
+    <br>
+    <br>
+    
+      <h1 style="text-decoration: underline;">{{ title }}</h1>
+      
+      <h2>
+        <a href="https://vue.roundsliderui.com/" target="_blank">
+          Vue-Round-Slider [v{{version}}]
+        </a>
+      </h2>
+   
+      <div id='row-section'>
+        <!-- solito container -->
+        <div class="container">
+        <h3>I miei servizi</h3>
+        <div id='row'>
+            <div class="column">
+              <div id="app1">
+                <h4>Loader Arm</h4>
+                <p>Angle</p>
+                <round-slider
+                  v-model="sliderValue"
+                  start-angle="0"
+                  end-angle="70"
+                  radius="150"
+                  min="0"
+                  max="70"
+                  step="1"
+                  v-bind:value-change="onSliderValueChange"
+                >
+                </round-slider>
+               
+                <br>
+                
+                <h2>Text Element</h2>
+                <div>{{sliderValue}}</div>
+                
+                <br>
+                
+                <h2>Input Element</h2>
+                <input v-model="sliderValue" />
+      
+                <br>
+                Slider:<input id="slider1Value" type="text" /><br /> 
+              </div>                
+            </div>
+            
+            <div class="column">
+              <div id="app2">
+                <h4>Bucket</h4>
+                <p>Angle</p>
+                <round-slider
+                  v-model="sliderValue2"
+                  start-angle="145"
+                  end-angle="215"
+                  radius="150"
+                  min="-90"
+                  max="90"
+                  step="1"
+                  v-bind:value-change="onSliderValueChange2"
+                >
+                </round-slider>
+                
+                <br>
+                
+                <h2>Text Element</h2>
+                <div>{{sliderValue2}}</div>
+                
+                <br>
+                
+                <h2>Input Element</h2>
+                <input v-model="sliderValue2" />
+                <br>
+                Slider:<input id="slider2Value" type="text" /><br />  
+              </div>
+            </div>
+
+            <div class="column">
+                <h4>Move control</h4>
+                <p>speed/dir</p>
+                <div id='outerContainer'>
+                <div id="joyDiv" style="width:200px;height:200px;margin:auto;"></div>
+            
+        		Posizione X:<input id="joyPosizioneX" type="text" /><br />
+	        	Posizione Y:<input id="joyPosizioneY" type="text" /><br />
+	        	Direzione:<input id="joyDirezione" type="text" /><br />
+	        	X :<input id="joyX" type="text" /><br />
+	        	Y :<input id="joyY" type="text" /><br />
+	        	PWM L :<input id="pwmL" type="text" /><br />
+	        	PWM R :<input id="pwmR" type="text" />   
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+<!-- </div>  -->
+
+   
+
+    <script>
+    
+         const view = document.getElementById('stream');
+        const WS_URL = "ws://" + window.location.host + ":82";
+        //const WS_URL = 'ws://192.168.43.59:82';
+        //const WS_URL = 'ws://192.168.1.76:82';
+        console.log(WS_URL);
+        const ws = new WebSocket(WS_URL);
+    
+        ws.onmessage = message => {
+            if (message.data instanceof Blob) {
+                var urlObject = URL.createObjectURL(message.data);
+                view.src = urlObject;
+            }
+        };
+        
+        
+        var lastText, lastSend, sendTimeout;
+        // limit sending to one message every 30 ms
+        // https://github.com/neonious/lowjs_esp32_examples/blob/master/neonious_one/cellphone_controlled_rc_car/www/index.html
+        function send(txt) {
+            var now = new Date().getTime();
+            if (lastSend === undefined || now - lastSend >= 30) {
+                try {
+                    ws.send(txt);
+                    lastSend = new Date().getTime();
+                    return;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            lastText = txt;
+            if (!sendTimeout) {
+                var ms = lastSend !== undefined ? 30 - (now - lastSend) : 30;
+                if (ms < 0)
+                    ms = 0;
+                sendTimeout = setTimeout(() => {
+                    sendTimeout = null;
+                    send(lastText);
+                }, ms);
+            }
+        };
+
+
+
+      new Vue({
+        el: "#app1",
+        computed: {
+          version() {
+            console.log('vue version')
+            return Vue.options.components.RoundSlider.options.version;
+          }
+        },
+        data: {
+          title: 'A simple Vue App',
+          sliderValue: 0
+        },
+        methods: {
+          onSliderValueChange(e) {
+          console.log("value>>>",e);
+          console.log("value>>>",e.value);
+          send("#L," + e.value);
+          },
+        },
+      });
+
+     new Vue({
+        el: "#app2",
+        computed: {
+          version() {
+            console.log('vue version')
+            return Vue.options.components.RoundSlider.options.version;
+          }
+        },
+        data: {
+          title: 'A simple Vue App',
+          sliderValue2: 0
+        },
+        methods: {
+          onSliderValueChange2(e) {
+          console.log("value>>>",e);
+          console.log("value>>>",e.value);
+          send("#B," + e.value);
+          },
+        },
+      });
+      
+      
+                
+    </script>
+  </body>
+  
+  
+  
+  <script type="text/javascript">
+
+
+    var joyIinputPosX = document.getElementById("joyPosizioneX");
+    var joyInputPosY = document.getElementById("joyPosizioneY");
+    var joyDirezione = document.getElementById("joyDirezione");
+    var joyX = document.getElementById("joyX");
+    var joyY = document.getElementById("joyY");
+    var pwmL = document.getElementById("pwmL");
+    var pwmR = document.getElementById("pwmR");
+
+    // Create JoyStick object into the DIV 'joyDiv'
+    var joy = new JoyStick('joyDiv', {"title": "joyDiv", "autoReturnToCenter": false }, function(stickData) {
+    console.log("JOY callback executed");
+    joyIinputPosX.value = stickData.xPosition;
+    joyInputPosY.value = stickData.yPosition;
+    joyDirezione.value = stickData.cardinalDirection;
+    joyX.value = stickData.x;
+    joyY.value = stickData.y;
+});
+
+
+    var inputPosX = document.getElementById("posizioneX");
+    var inputPosY = document.getElementById("posizioneY");
+    var direzione = document.getElementById("direzione");
+    var fuerzaI = document.getElementById("fuerzaI");
+    var fuerzaD = document.getElementById("fuerzaD");
+    var x = document.getElementById("X");
+    var y = document.getElementById("Y");
+
+
+
+
+    //Steering control program, based on :
+    // Differential Steering Joystick Algorithm
+    //   by Calvin Hass
+    //   https://www.impulseadventure.com/elec/
+
+    function getfuerza(nJoyX, nJoyY) {
+        var nMotMixL;
+        var nMotMixR;
+        var fPivYLimit = 32.0; //The threshold at which the pivot action starts
+        //                This threshold is measured in units on the Y-axis
+        //                away from the X-axis (Y=0). A greater value will assign
+        //                more of the joystick's range to pivot actions
+        //                Allowable range: 0 to 127
+
+        // TEMP VARIABLES
+        var nMotPremixL;    // Motor (left)  premixed output        (-128..+127)
+        var nMotPremixR;    // Motor (right) premixed output        (-128..+127)
+        var nPivSpeed;      // Pivot Speed                          (-128..+127)
+        var fPivScale;       // Balance scale b/w drive and pivot    (   0..1   )
+
+        // Calculate Drive Turn output due to Joystick X input
+        if (nJoyY >= 0) {
+            // Forward
+            nMotPremixL = (nJoyX >= 0 ? 100.0 : 100.0 + parseFloat(nJoyX));
+            nMotPremixR = (nJoyX >= 0 ? 100.0 - nJoyX : 100.0);
+        } else {
+            // Reverse
+            nMotPremixL = (nJoyX >= 0 ? 100.0 - nJoyX : 100.0);
+            nMotPremixR = (nJoyX >= 0 ? 100.0 : 100.0 + parseFloat(nJoyX));
+        }
+
+        // Scale Drive output due to Joystick Y input (throttle)
+        nMotPremixL = nMotPremixL * nJoyY / 100.0;
+        nMotPremixR = nMotPremixR * nJoyY / 100.0;
+
+        // Now calculate pivot amount
+        // - Strength of pivot (nPivSpeed) based on Joystick X input
+        // - Blending of pivot vs drive (fPivScale) based on Joystick Y input
+        nPivSpeed = nJoyX;
+        fPivScale = (Math.abs(nJoyY) > fPivYLimit) ? 0.0 : (1.0 - Math.abs(nJoyY) / fPivYLimit);
+
+        // Calculate final mix of Drive and Pivot
+        nMotMixL = (1.0 - fPivScale) * nMotPremixL + fPivScale * (nPivSpeed);
+        nMotMixR = (1.0 - fPivScale) * nMotPremixR + fPivScale * (-nPivSpeed);
+
+
+      const pwmMultiplier = 2.55; 
+        pwmL.value = Math.round(nMotMixL * pwmMultiplier);
+        pwmR.value = Math.round(nMotMixR * pwmMultiplier);
+    
+        return "#M," + Math.round(nMotMixL * pwmMultiplier) + "," + Math.round(nMotMixR * pwmMultiplier);   // The function returns the product of p1 and p2
+    }
+
+   // setInterval(function () { send(getfuerza(joy.GetX(), joy.GetY())); }, 300);
+ //   setInterval(function () { send(getfuerza(joy.GetX(), joy.GetY())); }, 50);
+
+
+// global variable visible to all java functions
+    var xmlHttp=createXmlHttpObject();
+    // function to create XML object
+    function createXmlHttpObject(){
+      if(window.XMLHttpRequest){
+        xmlHttp=new XMLHttpRequest();
+      }
+      else{
+        xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      return xmlHttp;
+    }
+
+
+function UpdateSlider(value) {
+      var xhttp = new XMLHttpRequest();
+      // this time i want immediate feedback to the fan speed
+      // yea yea yea i realize i'm computing fan speed but the point
+      // is how to give immediate feedback
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          // update the web based on reply from  ESP
+          document.getElementById("fanrpm").innerHTML=this.responseText;
+          console.log("xhttp PUT UPDATE_SLIDER response received");
+        }
+      }
+      // this syntax is really weird the ? is a delimiter
+      // first arg UPDATE_SLIDER is use in the .on method
+      // server.on("/UPDATE_SLIDER", UpdateSlider);
+      // then the second arg VALUE is use in the processing function
+      // String t_state = server.arg("VALUE");
+      // then + the controls value property
+      xhttp.open("PUT", "UPDATE_SLIDER?VALUE="+value, true);
+      xhttp.send();
+      console.log("xhttp PUT UPDATE_SLIDER executed");
+    }
+    
+</script>
+
+
+</html>

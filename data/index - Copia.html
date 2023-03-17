@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta name='viewport' content='width=device-width,         initial-scale=1.0,         user-scalable=no' />
+    <meta charset="utf-8" />
+
+
+    <title>Joystick and slider test</title>
+
+<style>
+
+#slider2 .rs-bg-color {
+    background-color: #e8f1b2;
+}
+
+#slider1 .rs-bg-color {
+    background-color: #e8f1b5;
+}
+
+#skills-section{
+text-align: center; /*contenuto centrato*/
+margin-top: 50px; /*spazio superiore*/
+border: 1px solid #00FF00;
+}
+.skill{
+/*larghezza dei div skill, in pagina ne abbiamo 3 quindi 100 / 3
+lasciando un po' di spazio per i margini
+*/
+width: 28%;
+min-width: 200px;
+/*display: inline-block; */ /*questi div saranno posti uno a fianco all'altro*/
+display: inline-flex;
+flex-direction:  column;
+align-items: center;
+
+margin: 2%; /*un po di spazio tra i div*/
+color: #2d3e50;
+border: 1px solid #00FFFF;
+}
+
+
+.row
+{
+	display: inline-flex;
+	clear: both;
+    
+}
+.columnLateral
+{
+  float: left;
+  width: 25%;
+  min-width: 300px;
+  border: 1px solid #0000FF;
+}
+.columnCetral
+{
+  float: left;
+  width: 25%;
+  min-width: 300px;
+  border: 1px solid #FF00FF;
+}
+
+    
+        #container {
+            width: 100%;
+            height: 49vh;
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 7px;
+            touch-action: none;
+        }
+
+        #item {
+            width: 100px;
+            height: 100px;
+            background-color: rgb(245, 230, 99);
+            border: 10px solid rgba(136, 136, 136, .5);
+            border-radius: 50%;
+            touch-action: none;
+            user-select: none;
+        }
+
+        #item:active {
+            background-color: rgba(168, 218, 220, 1.00);
+        }
+
+        #item:hover {
+            cursor: pointer;
+            border-width: 20px;
+        }
+
+        #area {
+            position: fixed;
+            right: 0;
+            top: 0;
+        }
+        #joyDiv
+{
+	border: 1px solid #FF0000;
+}
+
+    </style>
+
+    <script src="joy.js"></script>
+    <script src="jquery-3.6.3.min.js"></script>
+    <link href="roundslider.min.css" rel="stylesheet" />
+    <script src="roundslider.min.js"></script>
+</head>
+
+
+<body>
+
+
+
+
+    <div style="display: block; width: 80%; min-width: 400px; background-color: #caa;">
+        <div style="display: block; width: 100%">
+            I'm parent
+        </div>
+        <div style="display: inline-block; text-align: right; width: 100%">
+            Caption for parent
+        </div>
+    </div>
+
+    <div style="display: flex;
+                justify-content: flex-end;
+                margin-left: auto;
+                margin-right: 0;
+                height: 100px;
+                border: 1px solid #00FF00;">
+
+        <label for="battery">Battery level:</label>
+
+        <meter id="battery"
+               min="0" max="100"
+               low="25" high="70" optimum="95"
+               value="20">
+        </meter>
+    </div>
+ 
+ <div id='skills-section'>
+    <!-- solito container -->
+    <div class="container">
+        <h3>I miei servizi</h3>
+        <div id='skills'>
+            <div class="skill">
+                <h4>Loader Arm</h4>
+                <p>Angle</p>
+                <div id="slider1" style="margin: auto;"></div>
+                <div id="slider1text">
+                <div style="height: 10vh;"></div> 
+                Slider:<input id="slider1Value" type="text" /><br />    
+            </div>
+            </div>
+            <div class="skill">
+                <h4>Bucket</h4>
+                <p>Angle</p>
+                <div style="height: 10vh;"></div> 
+                <div id="slider2" style="margin: auto;"></div>
+                <div id="slider2text">
+                <div style="height: 10vh;"></div> 
+                Slider:<input id="slider2Value" type="text" /><br />  
+            </div>
+            </div>
+            <div class="skill">
+                <h4>Move control</h4>
+                <p>speed/dir</p>
+                <div id='outerContainer'>
+                <!-- <div style="border: 1px solid #FF0000;"></div> -->
+                <div id="joyDiv" style="width:200px;height:200px;margin:auto;"></div>
+            
+        		Posizione X:<input id="joyPosizioneX" type="text" /><br />
+	        	Posizione Y:<input id="joyPosizioneY" type="text" /><br />
+	        	Direzione:<input id="joyDirezione" type="text" /><br />
+	        	X :<input id="joyX" type="text" /><br />
+	        	Y :<input id="joyY" type="text" /><br />
+	        	PWM L :<input id="pwmL" type="text" /><br />
+	        	PWM R :<input id="pwmR" type="text" />        
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="row">
+       <div class="columnLateral">
+            <div id="slider1" style="margin: auto;"></div>
+            <div id="slider1text">
+                <div style="height: 10vh;"></div> 
+                Slider:<input id="slider1Value" type="text" /><br />    
+            </div>
+        </div>
+        <div class="columnCetral">
+            <p>colonna centrale</p> 
+        </div>
+  
+        <div class="columnLateral">
+        <!--    <div id='outerContainer'> -->
+                <!-- <div style="border: 1px solid #FF0000;"></div> -->
+                <div id="joyDiv" style="width:200px;height:200px;margin:auto;"></div>
+            
+        		Posizione X:<input id="joyPosizioneX" type="text" /><br />
+	        	Posizione Y:<input id="joyPosizioneY" type="text" /><br />
+	        	Direzione:<input id="joyDirezione" type="text" /><br />
+	        	X :<input id="joyX" type="text" /><br />
+	        	Y :<input id="joyY" type="text" /><br />
+	        	PWM L :<input id="pwmL" type="text" /><br />
+	        	PWM R :<input id="pwmR" type="text" />        
+         <!--   </div> -->
+        </div>
+    </div>
+    
+    <script>
+
+
+        const view = document.getElementById('stream');
+        const WS_URL = "ws://" + window.location.host + ":82";
+        //const WS_URL = 'ws://192.168.43.59:82';
+        //const WS_URL = 'ws://192.168.1.76:82';
+        console.log(WS_URL);
+        const ws = new WebSocket(WS_URL);
+    
+        ws.onmessage = message => {
+            if (message.data instanceof Blob) {
+                var urlObject = URL.createObjectURL(message.data);
+                view.src = urlObject;
+            }
+        };
+        
+        
+        var lastText, lastSend, sendTimeout;
+        // limit sending to one message every 30 ms
+        // https://github.com/neonious/lowjs_esp32_examples/blob/master/neonious_one/cellphone_controlled_rc_car/www/index.html
+        function send(txt) {
+            var now = new Date().getTime();
+            if (lastSend === undefined || now - lastSend >= 30) {
+                try {
+                    ws.send(txt);
+                    lastSend = new Date().getTime();
+                    return;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            lastText = txt;
+            if (!sendTimeout) {
+                var ms = lastSend !== undefined ? 30 - (now - lastSend) : 30;
+                if (ms < 0)
+                    ms = 0;
+                sendTimeout = setTimeout(() => {
+                    sendTimeout = null;
+                    send(lastText);
+                }, ms);
+            }
+        }
+    
+    </script>
+</body>
+
+<script type="text/javascript">
+
+var slider1IinputVal = document.getElementById("slider1Value");
+var slider2IinputVal = document.getElementById("slider2Value");
+
+$("#slider1_old").roundSlider({
+    svgMode: true,
+    radius: 150,
+    circleShape: "quarter-top-left",
+    sliderType: "min-range",
+    min: 0,
+    max: 70,
+    step: 1,
+    value: 0,
+    update: "onSliderValueChange"
+});
+$("#slider1").roundSlider({
+    width: "20",
+    radius: "150",
+    value: 0,
+    editableTooltip: false,
+    mouseScrollAction: true,
+    min: "0",
+    max: "70",
+    step: 1,
+    lineCap: "square",
+    startAngle: 0,
+    circleShape: "custom-quarter",
+    handleSize: "+9",
+    handleShape: "dot"
+});
+
+function onSliderValueChange (e) {
+    console.log(e.value);
+    slider1IinputVal.value = e.value;
+    send("#L," + e.value);
+}
+  
+
+$("#slider2").roundSlider({
+    width: "20",
+    radius: "150",
+    value: 0,
+    editableTooltip: false,
+    mouseScrollAction: true,
+    min: "-90",
+    max: "90",
+    circleShape: "custom-quarter",
+    startAngle: 135,
+    handleSize: "+9",
+    handleShape: "dot",
+    update: "onSlider2ValueChange"
+});
+
+function onSlider2ValueChange (e) {
+    console.log(e.value);
+    slider2IinputVal.value = e.value;
+    send("#B," + e.value);
+}
+
+    var joyIinputPosX = document.getElementById("joyPosizioneX");
+    var joyInputPosY = document.getElementById("joyPosizioneY");
+    var joyDirezione = document.getElementById("joyDirezione");
+    var joyX = document.getElementById("joyX");
+    var joyY = document.getElementById("joyY");
+    var pwmL = document.getElementById("pwmL");
+    var pwmR = document.getElementById("pwmR");
+
+    // Create JoyStick object into the DIV 'joyDiv'
+    var joy = new JoyStick('joyDiv', {"title": "joyDiv", "autoReturnToCenter": true }, function(stickData) {
+    console.log("JOY callback executed");
+    joyIinputPosX.value = stickData.xPosition;
+    joyInputPosY.value = stickData.yPosition;
+    joyDirezione.value = stickData.cardinalDirection;
+    joyX.value = stickData.x;
+    joyY.value = stickData.y;
+});
+
+
+    var inputPosX = document.getElementById("posizioneX");
+    var inputPosY = document.getElementById("posizioneY");
+    var direzione = document.getElementById("direzione");
+    var fuerzaI = document.getElementById("fuerzaI");
+    var fuerzaD = document.getElementById("fuerzaD");
+    var x = document.getElementById("X");
+    var y = document.getElementById("Y");
+
+
+
+
+    //Steering control program, based on :
+    // Differential Steering Joystick Algorithm
+    //   by Calvin Hass
+    //   https://www.impulseadventure.com/elec/
+
+    function getfuerza(nJoyX, nJoyY) {
+        var nMotMixL;
+        var nMotMixR;
+        var fPivYLimit = 32.0; //The threshold at which the pivot action starts
+        //                This threshold is measured in units on the Y-axis
+        //                away from the X-axis (Y=0). A greater value will assign
+        //                more of the joystick's range to pivot actions
+        //                Allowable range: 0 to 127
+
+        // TEMP VARIABLES
+        var nMotPremixL;    // Motor (left)  premixed output        (-128..+127)
+        var nMotPremixR;    // Motor (right) premixed output        (-128..+127)
+        var nPivSpeed;      // Pivot Speed                          (-128..+127)
+        var fPivScale;       // Balance scale b/w drive and pivot    (   0..1   )
+
+        // Calculate Drive Turn output due to Joystick X input
+        if (nJoyY >= 0) {
+            // Forward
+            nMotPremixL = (nJoyX >= 0 ? 100.0 : 100.0 + parseFloat(nJoyX));
+            nMotPremixR = (nJoyX >= 0 ? 100.0 - nJoyX : 100.0);
+        } else {
+            // Reverse
+            nMotPremixL = (nJoyX >= 0 ? 100.0 - nJoyX : 100.0);
+            nMotPremixR = (nJoyX >= 0 ? 100.0 : 100.0 + parseFloat(nJoyX));
+        }
+
+        // Scale Drive output due to Joystick Y input (throttle)
+        nMotPremixL = nMotPremixL * nJoyY / 100.0;
+        nMotPremixR = nMotPremixR * nJoyY / 100.0;
+
+        // Now calculate pivot amount
+        // - Strength of pivot (nPivSpeed) based on Joystick X input
+        // - Blending of pivot vs drive (fPivScale) based on Joystick Y input
+        nPivSpeed = nJoyX;
+        fPivScale = (Math.abs(nJoyY) > fPivYLimit) ? 0.0 : (1.0 - Math.abs(nJoyY) / fPivYLimit);
+
+        // Calculate final mix of Drive and Pivot
+        nMotMixL = (1.0 - fPivScale) * nMotPremixL + fPivScale * (nPivSpeed);
+        nMotMixR = (1.0 - fPivScale) * nMotPremixR + fPivScale * (-nPivSpeed);
+
+
+      const pwmMultiplier = 2.55; 
+        pwmL.value = Math.round(nMotMixL * pwmMultiplier);
+        pwmR.value = Math.round(nMotMixR * pwmMultiplier);
+    
+        return "#M," + Math.round(nMotMixL * pwmMultiplier) + "," + Math.round(nMotMixR * pwmMultiplier);   // The function returns the product of p1 and p2
+    }
+
+   // setInterval(function () { send(getfuerza(joy.GetX(), joy.GetY())); }, 300);
+    setInterval(function () { send(getfuerza(joy.GetX(), joy.GetY())); }, 50);
+
+</script>
+
+</html
